@@ -1,11 +1,11 @@
 package app.gui;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class homepage extends JFrame{
+    private JFrame mainPage;
     private JPanel mainPanel;
     private JLabel Title;
     private JButton Search;
@@ -28,18 +28,21 @@ public class homepage extends JFrame{
     }
 
     public void GUI() {
-        JFrame mainPage = new JFrame("Homepage");
+        mainPage = new JFrame("Homepage");
         mainPage.setContentPane(this.mainPanel);
         mainPage.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ///mainPanel.setContentPane(500,500);
+        //mainPage.setSize();
         mainPage.pack();
         mainPage.setVisible(true);
 
+        //Search Button
         this.Search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mainPage.setVisible(false);
                 try {
-                    new search();
+                    new Search();
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
