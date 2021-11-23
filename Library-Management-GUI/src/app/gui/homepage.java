@@ -79,7 +79,7 @@ public class homepage extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 mainPage.setVisible(false);
                 try {
-                    new new_borrower();
+                    new New_Borrower();
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
