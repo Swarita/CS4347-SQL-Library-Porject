@@ -19,47 +19,57 @@ import javax.swing.*;
 import javax.swing.SwingUtilities;
 import java.sql.SQLException;
 
-public class check_in implements ActionListener{
+public class check_in implements ActionListener {
 
     private JFrame frame;
+	
+	private JPanel checkInButtonPanel;
+    private JPanel titlePanel;
+    private JPanel panel;
+    
+    private JTextField bookIDField;
+    private JTextField borrowerCardNoField;
+    private JTextField borrowerNameField;
+    
+    private JLabel pageTitleLabel;
+    private JLabel bookIDLabel;
+    private JLabel borrowerCardNoLabel;
+    private JLabel borrowerNameLabel;
+    
+    private JButton checkInButton;
+    private JButton backButton;
 
-    private JPanel checkInPanel;
-    private JPanel mainPanel;
 
-    GridBagConstraints center = new GridBagConstraints();
-		//center.gridwidth = GridBagConstraints.REMAINDER;
-        //center.anchor = GridBagConstraints.NORTH;
-		center.anchor = GridBagConstraints.CENTER;
-		center.fill = GridBagConstraints.HORIZONTAL;
+	public check_in() {
 		
 	    borrowerCardNoLabel = new JLabel("Borrower Card Number", JLabel.RIGHT);
-	    borrowerNameLabel = new JLabel("Borrower Name Button",JLabel.RIGHT)
-
-	bookIDLabel = new JLabel("Book ID", JLabel.RIGHT);
+	    borrowerNameLabel = new JLabel("Borrower Name Button", JLabel.RIGHT);
+	    bookIDLabel = new JLabel("Book ID", JLabel.RIGHT);
+		pageTitleLabel = new JLabel("Check in a Book", JLabel.CENTER);
 		checkInButton = new JButton("Check In");
 		backButton = new JButton("Return to Previous Page");
-		pageTitleLabel = new JLabel("Check in a Book", JLabel.CENTER);
 		//to change font and size of text
 		pageTitleLabel.setFont(pageTitleLabel.getFont().deriveFont(30.0f));
 		
-		JFrame frame = new JFrame();
+		frame = new JFrame();							//frames
 		
-		JPanel panel = new JPanel();
-		JPanel titlePanel = new JPanel();
-		JPanel borrowerCardNoPanel = new JPanel();
-		JPanel checkInButtonPanel = new JPanel();
+		panel = new JPanel();							//panels
+		titlePanel = new JPanel();
+		checkInButtonPanel = new JPanel();
 		
-		JTextField bookIDField = new JTextField(30);
-		JTextField borrowerCardNoField = new JTextField(30);
-		JTextField borrowerNameField = new JTextField(30);
+		bookIDField = new JTextField(30);			//fields
+		borrowerCardNoField = new JTextField(30);
+		borrowerNameField = new JTextField(30);
 		
 		panel.setSize(500, 500);
+		
 		//set horizontal and vertical spacing
 		panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 150));
-		checkInButtonPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
-		//set grid layout
 		panel.setLayout(new GridLayout(5, 5, 20, 30));
+
+		checkInButtonPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
 		checkInButtonPanel.setLayout(new GridLayout(0, 1, 20, 30));
+
 		
 		//add buttons and labels
 		titlePanel.add(pageTitleLabel);
@@ -79,8 +89,30 @@ public class check_in implements ActionListener{
 		frame.setTitle("Check In");
 		frame.pack();
 		frame.setVisible(true);
-
-    public static void main(String[] args) {
+		
+		checkInButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	//action
+            }
+        });
+		
+		backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	//action
+            	try {
+                    frame.setVisible(false);
+                    //new homepage();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+		
+	}
+	
+	public static void main(String[] args) {
 		new check_in();
 	}
 
@@ -89,4 +121,6 @@ public class check_in implements ActionListener{
 		// TODO Auto-generated method stub
 		
 	}
+
 }
+
