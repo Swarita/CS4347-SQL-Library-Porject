@@ -18,7 +18,11 @@ import javax.swing.JTextField;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class check_in implements ActionListener {
 
@@ -30,30 +34,33 @@ public class check_in implements ActionListener {
 	search for bookID, cardNo, AND/OR any substring of borrower name
 	*/
 
-    private JFrame frame;
+    	private JFrame frame;
 	
 	private JPanel searchButtonPanel;
-    private JPanel titlePanel;
-    private JPanel panel;
-    private JPanel tablePanel;
-    
-    private JTextField bookIDField;
-    private JTextField borrowerCardNoField;
-    private JTextField borrowerNameField;
-    
-    private JLabel pageTitleLabel;
-    private JLabel bookIDLabel;
-    private JLabel borrowerCardNoLabel;
-    private JLabel borrowerNameLabel;
-    private JLabel tableName;
-    
-    private JButton searchButton;
-    private JButton backButton;
+    	private JPanel titlePanel;
+    	private JPanel panel;
+	private JPanel tablePanel;
+
+	private JTextField bookIDField;
+	private JTextField borrowerCardNoField;
+	private JTextField borrowerNameField;
+
+	private JLabel pageTitleLabel;
+	private JLabel bookIDLabel;
+	private JLabel borrowerCardNoLabel;
+	private JLabel borrowerNameLabel;
+	private JLabel tableName;
+
+	private JButton searchButton;
+	private JButton backButton;
 	private JButton checkInButton;
 	private JPanel panel1;
 	private JPanel mainPanel;
 
 	private JTable loansTable;
+
+	public boolean isQueried = false;
+	public boolean isCheckedIn = false;
 
 	//Connection Information
 	String url = "jdbc:mysql://database-lib.cliese5bfxyl.us-east-2.rds.amazonaws.com:3306/mysql";
@@ -75,10 +82,10 @@ public class check_in implements ActionListener {
 		//to change font and size of text
 		pageTitleLabel.setFont(pageTitleLabel.getFont().deriveFont(30.0f));
 
-		frame = new JFrame();							//frames
+		frame = new JFrame();					//frames
 		frame.setSize(700, 500);
 
-		panel = new JPanel();							//panels
+		panel = new JPanel();					//panels
 		titlePanel = new JPanel();
 		searchButtonPanel = new JPanel();
 
@@ -116,8 +123,8 @@ public class check_in implements ActionListener {
 		frame.pack();
 		frame.setVisible(true);
 
-		//need to display from BOOK_LOANS: Loan_id, Card_id, Date_out, Date_in, Isbn10, Isbn13
-		String[] colNames = {"Loan_id", "Card_id", "Date_out", "Due_date", "Date_in", "Isbn10", "Isbn13"};
+		//need to display from BOOK_LOANS: Loan_id, Card_id, Date_out, Date_in, Isbn10
+		String[] colNames = {"Loan_id", "Card_id", "Date_out", "Due_date", "Date_in", "Isbn10"};
 		String from;
 
 		DefaultTableModel model = new DefaultTableModel();
@@ -133,7 +140,7 @@ public class check_in implements ActionListener {
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		//when check in button is pressed
+		//when search button is pressed
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -154,20 +161,51 @@ public class check_in implements ActionListener {
 						JOptionPane.showMessageDialog(null, "The Isbn must be either 10 digits long");				//error
 						bookIDField.setText("");
 					} else if(bookID.length() == 10) {
-						ResultSet nameResult = statement.executeQuery("SELECT * FROM LIBRARY.BOOK_LOANS WHERE Isbn10='" + bookID + "';");
-						System.out.print("isbn10");
-						queryTable(statement, nameResult, model);
+						ResultSet nameResult = statement.executeQuery("SELECT * FROM LIBRARY.BOOK_LOANS WHERE Isbn10='" + bookID + "' AND  Date_in is null;");
+						isQueried = queryTable(statement, nameResult, model, isQueried);
 					} else if(cardNo.length() != 8 && cardNo.length() != 0){
 						JOptionPane.showMessageDialog(null, "The borrower's ID must be in the form of ID######");			//error
 						bookIDField.setText("");
 					} else if (cardNo.length() == 8) {
-						ResultSet nameResult = statement.executeQuery("SELECT * FROM LIBRARY.BOOK_LOANS WHERE Card_id='" + cardNo + "' WHERE ;");
-						System.out.print("cardNo");
-						queryTable(statement, nameResult, model);
+						ResultSet nameResult = statement.executeQuery("SELECT * FROM LIBRARY.BOOK_LOANS WHERE Card_id='" + cardNo + "' AND  Date_in is null;");
+						isQueried = queryTable(statement, nameResult, model, isQueried);
 					} else if (name.length() > 0) {
-						ResultSet nameResult = statement.executeQuery("SELECT * FROM LIBRARY.BORROWERS WHERE Bname='" + name + "';");
-						System.out.print("name");
-						queryTable(statement, nameResult, model);
+						ResultSet nameResult = statement.executeQuery("SELECT * FROM LIBRARY.BOOK_LOANS WHERE Card_id in (SELECT Card_id FROM LIBRARY.BORROWERS WHERE Bname LIKE '%" + name + "%') AND  Date_in is null;");
+						isQueried = queryTable(statement, nameResult, model, isQueried);
+					} else if (bookID.length() == 10 && cardNo.length() == 8 && name.length() > 0) {
+						ResultSet nameResult = statement.executeQuery("SELECT * FROM LIBRARY.BORROWERS WHERE Isbn10="+ bookID +" and Card_id="+ cardNo + " and Date_in is null;");
+						isQueried = queryTable(statement, nameResult, model, isQueried);
+					}
+
+					if(isQueried == true) {
+						loansTable.setRowSelectionAllowed(true);
+						loansTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+						//select row, get
+						//System.out.println("selected: " + model.getDataVector().get(selectedRowIndex));
+
+						loansTable.addMouseListener(new MouseAdapter(){
+							public void mouseClicked(MouseEvent event)
+							{
+								String loan_id=(String)loansTable.getModel().getValueAt(loansTable.rowAtPoint(event.getPoint()), 0);
+								System.out.println("loan id selected: " + loan_id);
+								String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+								try {
+									//check if it is overdue or not
+									Statement st=connection.createStatement();
+									st.executeUpdate("UPDATE LIBRARY.BOOK_LOANS SET Date_in='"+ currentDate + "' WHERE Loan_id='" + loan_id + "';");
+									//ResultSet nameResult = st.executeQuery();
+									Statement st2=connection.createStatement();
+									ResultSet result = st2.executeQuery("SELECT * FROM LIBRARY.BOOK_LOANS WHERE Loan_id='" + loan_id + "';");
+									if(result.next())
+											isCheckedIn = true;
+								} catch (Exception e1) {
+									e1.printStackTrace();
+								}
+							}
+						});
+
+
 					}
 				} catch (SQLException throwables) {
 					throwables.printStackTrace();
@@ -182,7 +220,20 @@ public class check_in implements ActionListener {
 		checkInButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(isQueried == false) {
+					JOptionPane.showMessageDialog(null, "You have not searched for any books yet.");
+				}
+				else if (isQueried == true && isCheckedIn){
+					//model.getDataVector().elementAt(loansTable.getSelectedRow());
+					System.out.println("worked");
+					JOptionPane.showMessageDialog(null, "You have checked in the selected books!");
+					frame.dispose();
+					new check_in();
 
+				} else if(isQueried == true && loansTable.getSelectionModel().isSelectionEmpty() == true) {
+					JOptionPane.showMessageDialog(null, "You have not selected any books. You can click and Ctrl+Click "
+					+ "to select multiple books if you would like to check in multiple books");
+				}
 			}
 		});
 
@@ -201,7 +252,7 @@ public class check_in implements ActionListener {
 		});
 	}
 
-	public static void queryTable(Statement statement, ResultSet nameResult, DefaultTableModel model) throws SQLException {
+	public static boolean queryTable(Statement statement, ResultSet nameResult, DefaultTableModel model, boolean isQueried) throws SQLException {
 		int i = 0;
 		while (nameResult.next()) {
 
@@ -211,24 +262,26 @@ public class check_in implements ActionListener {
 			String dueDate = nameResult.getString("Due_date");
 			String dateIN = nameResult.getString("Date_in");
 			String isbn10 = nameResult.getString("Isbn10");
-			String isbn13 = nameResult.getString("Isbn13");
+			//String isbn13 = nameResult.getString("Isbn13");
 
-			model.addRow(new Object[]{loanID, cardID, dateOut,dueDate, dateIN, isbn10, isbn13});
+			model.addRow(new Object[]{loanID, cardID, dateOut,dueDate, dateIN, isbn10});
 			i++;
 		}
 		if(i < 1){
 			JOptionPane.showMessageDialog(null, "No Record Found", "Error", JOptionPane.ERROR_MESSAGE);
-			//bookIDField.setText("");
+			return false;
 		}
 		else {
 			System.out.println("/nFound: " + i);
+			System.out.println("/Query in function: " + isQueried);
+			isQueried = true;
 			JOptionPane.showMessageDialog(null, "Please resize the window to be able to see the table of book loans queried");
+			return true;
 		}
 
 	}
 
 	public static void main(String[] args) {
-
 		new check_in();
 	}
 
