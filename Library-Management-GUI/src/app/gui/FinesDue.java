@@ -1,3 +1,4 @@
+package app.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.DriverManager;
