@@ -241,7 +241,7 @@ public class fines {
             public void actionPerformed(ActionEvent e)
             {
                 mainFrame.setVisible(false);
-                //new MainPage();
+                new homepage();
             }
         });
         GridBagConstraints gbc_btnClose=new GridBagConstraints();
