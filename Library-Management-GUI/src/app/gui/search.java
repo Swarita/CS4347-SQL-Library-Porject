@@ -68,7 +68,7 @@ public class search extends JFrame{
                         Statement state= con.createStatement();
 
                         //Querying the database to display all instances of
-                        searchResultSet= state.executeQuery("SELECT b.ISBN10, b.Title, b.Author, (case when b.Isbn10 in(Select Isbn10 from LIBRARY.BOOK_LOANS where Date_in IS NULL) then 'Checked-out' else 'Available' end) AS Availability FROM LIBRARY.BOOKS group by b.ISBN10 having b.ISBN10 like '%"+searched+"%' or b.Title like '%"+searched+"%' or Author like '%"+searched+"%';");
+                        searchResultSet= state.executeQuery("SELECT b.ISBN10, b.Title, b.Author, (case when b.Isbn10 in(Select Isbn10 from LIBRARY.BOOK_LOANS where Date_in IS NULL) then 'Checked-out' else 'Available' end) AS Availability FROM LIBRARY.BOOKS group by b.ISBN10 having b.ISBN10 like '%"+searched+"%' or b.Title like '%"+searched+"%' or b.Author like '%"+searched+"%';");
 
                         //Putting the results into the table
                         searchResults.setModel(MakeTable.resultSetToTableModel(searchResultSet));
