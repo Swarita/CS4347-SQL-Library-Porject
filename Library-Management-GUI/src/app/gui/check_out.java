@@ -76,7 +76,7 @@ public class check_out {
                         Statement s1 = connection.createStatement();
                         Statement s2 = connection.createStatement();
                         ResultSet r1 = s1.executeQuery("SELECT * from LIBRARY.BOOKS WHERE ISBN10 = '" + isbn + "';");
-                        ResultSet r2 = s2.executeQuery("SELECT * from LIBRARY.BORROWER WHERE Card_id = '" + cardNo + "';");
+                        ResultSet r2 = s2.executeQuery("SELECT * from LIBRARY.BORROWERS WHERE Card_id = '" + cardNo + "';");
 
                         if (r1.next() && r2.next()) {
                             Statement s3 = connection.createStatement();
