@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Connection;
 
-public class New_Borrower extends JFrame{
+public class new_borrower extends JFrame{
     private JPanel NewBorrowerPanel;
     private JPanel mainPanel;
     private JLabel LastName;
@@ -33,13 +33,13 @@ public class New_Borrower extends JFrame{
     private JButton AddBorrower;
     private JButton Back;
 
-    New_Borrower () throws SQLException {
+    new_borrower() throws SQLException {
         createGui();
     }
 
     public static void main(String args[]){
         try{
-            New_Borrower addBorrowerObj = new New_Borrower();
+            new_borrower addBorrowerObj = new new_borrower();
         }
         catch (Exception e)
         {
@@ -71,16 +71,6 @@ public class New_Borrower extends JFrame{
                         JOptionPane.showMessageDialog(null, "You must enter all attributes!");
                     }
 
-                    if (ssn.length() < 9 || ssn.length() > 9) {
-                        JOptionPane.showMessageDialog(null, "The SSN must be 9 digits long!");
-                        SSNField.setText("");
-                    }
-
-                    if (phone.length() > 10 || phone.length() < 10 ) {
-                        JOptionPane.showMessageDialog(null, "The Phone Number length must be 10 digits long!");
-                        PhoneField.setText("");
-                    }
-
                     //Connection Information
                     String url = "jdbc:mysql://database-lib.cliese5bfxyl.us-east-2.rds.amazonaws.com:3306/mysql";
                     String username = "admin";
@@ -91,7 +81,7 @@ public class New_Borrower extends JFrame{
                         Statement statement = connection.createStatement();
 
                         //Checking to see if the following Borrower is in the system, based on the SSN
-                        ResultSet resultSet = statement.executeQuery("SELECT * FROM LIBRARY.BORROWER WHERE Ssn='" + ssn + "';");
+                        ResultSet resultSet = statement.executeQuery("SELECT * FROM LIBRARY.BORROWERS WHERE Ssn='" + ssn + "';");
 
 
                         if (resultSet.next()) {
@@ -103,21 +93,28 @@ public class New_Borrower extends JFrame{
                             Statement statementTwo = connection.createStatement();
 
                             //Checking to see what the max Card ID is
-                            ResultSet resultSetTwo = statementTwo.executeQuery("SELECT max(Card_id) FROM LIBRARY.BORROWER;");
+                            ResultSet resultSetTwo = statementTwo.executeQuery("SELECT max(Card_id) FROM LIBRARY.BORROWERS;");
 
-                            int cardId = 0;
+                            String cardId = "";
+                            String resultCardId = "";
+                            int resultCardIdInt = 0;
+                            String finalCardID = "";
 
                             //Depending on what the max ID is, this will ensure that the new Insert into database has a different Card_ID, which will be 1 up from the max
                             if (resultSetTwo.next()) {
-                                cardId = resultSetTwo.getInt(1)+1;
+                                cardId = resultSetTwo.getString(1);
+                                resultCardId = cardId.substring(2);
+                                resultCardIdInt = Integer.parseInt(resultCardId) + 1;
+                                finalCardID = "ID" + String.valueOf(resultCardIdInt);
                             }
 
-                            //Concat to full name
-                            String bName = firstName.concat(" " + lastName);
+                            System.out.print(finalCardID);
 
                             //Executing the insert into the Database
                             Statement statementThree = connection.createStatement();
-                            statementThree.executeUpdate("INSERT INTO `LIBRARY`.`BORROWER` (`Card_id`, `Ssn`, `Bname`, `Address`, `Phone`) VALUES (" + cardId + "," + ssn + ", '" + bName + "', '" + address + "', " + phone + ")");
+                            statementThree.executeUpdate("INSERT INTO `LIBRARY`.`BORROWERS` (`Card_id`, `Ssn`, `Bname`, `last_name`, `email`, `Address`, `city`, `state`, `Phone`) VALUES ('"
+                                    + finalCardID + "', '" + ssn + "', '" + firstName + "', '" + lastName + "', '"
+                                    + email + "', '" + address + "', '" + city + "', '" + state + "', '" + phone + "')");
 
                             FirstNameField.setText("");
                             LastNameField.setText("");
@@ -129,7 +126,7 @@ public class New_Borrower extends JFrame{
                             EmailField.setText("");
 
                             //The following is displaying the Card ID of the new Borrower
-                            JOptionPane.showMessageDialog(null, "The Card Id for the new Borrower is : " + cardId);
+                            JOptionPane.showMessageDialog(null, "The Card Id for the new Borrower is : " + finalCardID);
                         }
                     } catch (Exception e1) {
                         e1.printStackTrace();
@@ -154,9 +151,4 @@ public class New_Borrower extends JFrame{
             }
         });
     }
-
-
-
-
-
 }
