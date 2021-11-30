@@ -95,11 +95,11 @@ public class check_in implements ActionListener {
 
 		//set horizontal and vertical spacing
 		panel.setSize(300, 300);
-		panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 100, 200));
+		panel.setBorder(BorderFactory.createEmptyBorder(50, 10, 10, 200));
 		panel.setLayout(new GridLayout(5, 5, 20, 20));
 
 		searchButtonPanel.setSize(500, 100);
-		searchButtonPanel.setBorder(BorderFactory.createEmptyBorder(10, 100, 50, 100));
+		searchButtonPanel.setBorder(BorderFactory.createEmptyBorder(0, 100, 10, 100));
 		searchButtonPanel.setLayout(new GridLayout(0, 1, 20, 10));
 
 		//add buttons and labels
