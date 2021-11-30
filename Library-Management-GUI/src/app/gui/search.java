@@ -23,7 +23,7 @@ public class search extends JFrame{
     private JTable searchResults;
 
     //Database Information
-    String url= "jdbc:mysql;//database-lib.cliese5bfxyl.us-east.2.rds.amazonaws.com:3306/mysql";
+    String url= "jdbc:mysql://database-lib.cliese5bfxyl.us-east.2.rds.amazonaws.com:3306/mysql";
     String user= "admin";
     String password= "lion1234";
 
