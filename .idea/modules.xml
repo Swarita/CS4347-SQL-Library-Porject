@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CS4347-SQL-Library-Porject.iml" filepath="$PROJECT_DIR$/CS4347-SQL-Library-Porject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Library-Management-GUI/Library-Management-GUI.iml" filepath="$PROJECT_DIR$/Library-Management-GUI/Library-Management-GUI.iml" />
     </modules>
   </component>
 </project>

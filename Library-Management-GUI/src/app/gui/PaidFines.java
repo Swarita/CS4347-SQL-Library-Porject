@@ -34,7 +34,7 @@ public class PaidFines extends JFrame
     void prepareGUI(String card_str) throws SQLException
     {
 
-        int card=Integer.parseInt(card_str);
+        String card=card_str;
 
         mainFrame=new JFrame("Paid Fines");
         mainFrame.setSize(500,500);
@@ -90,15 +90,13 @@ public class PaidFines extends JFrame
             ResultSet rs= null;
 
 
-            rs= stmt.executeQuery("Select f.Loan_id, b.Isbn from LIBRARY.FINES as f left outer join LIBRARY.BOOK_LOANS as b on b.Loan_id=f.Loan_id where b.Card_id="+card+" and Paid=1;");
+            rs= stmt.executeQuery("Select f.Loan_id, b.Isbn10 from LIBRARY.FINES as f left outer join LIBRARY.BOOK_LOANS as b on b.Loan_id=f.Loan_id where b.Card_id='"+card+"' and Paid=1;");
 
             //table.setModel(DbUtils.resultSetToTableModel(rs));
             table.setEnabled(false);
 
-            table.getColumnModel().getColumn(0).setPreferredWidth(150);
-            table.getColumnModel().getColumn(1).setPreferredWidth(500);
-            //table.getColumnModel().getColumn(2).setPreferredWidth(350);
-            //table.getColumnModel().getColumn(3).setPreferredWidth(100);
+            table.setModel(MakeTable.resultSetToTableModel(rs));
+
 
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }

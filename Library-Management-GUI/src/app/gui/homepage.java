@@ -29,6 +29,7 @@ public class homepage extends JFrame{
 
     public void GUI() {
         JFrame mainPage = new JFrame("Homepage");
+        mainPage.setSize(500,500);
         mainPage.setContentPane(this.mainPanel);
         mainPage.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainPage.pack();

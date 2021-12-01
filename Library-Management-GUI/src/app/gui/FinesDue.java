@@ -11,6 +11,8 @@ import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 //import net.proteanit.sql.DbUtils;
 
@@ -23,7 +25,7 @@ public class FinesDue {
     String username = "admin";
     String password = "lion1234";
 
-    int loan_id=0;
+    String loan_id ="";
 
     JTable table;
 
@@ -35,7 +37,7 @@ public class FinesDue {
     void prepareGUI(String card_str) throws SQLException
     {
 
-        int card=Integer.parseInt(card_str);
+        String card=card_str;
 
         mainFrame=new JFrame("Fines Due");
         mainFrame.setSize(500,500);
@@ -94,7 +96,9 @@ public class FinesDue {
         gbc_layeredPane.gridy = 2;
         controlPanel.add(layeredPane, gbc_layeredPane);
 
-        table=new JTable();
+        String[] columns = {"Loan Id", "ISBN10", "Fine Amount"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        table=new JTable(model);
         JScrollPane scrollPane=new JScrollPane(table);
         scrollPane.setBounds(6,6,600,400);
         layeredPane.add(scrollPane);
@@ -102,7 +106,7 @@ public class FinesDue {
 
         scrollPane.setViewportView(table);
 
-        table.setColumnSelectionAllowed(false);;
+        table.setColumnSelectionAllowed(false);
         table.setRowSelectionAllowed(true);
 
         table.addMouseListener(new MouseAdapter(){
@@ -110,7 +114,7 @@ public class FinesDue {
             {
                 if(evnt.getClickCount() ==1 || evnt.getClickCount()==2)
                 {
-                    loan_id=(int)table.getModel().getValueAt(table.rowAtPoint(evnt.getPoint()), 0);
+                    loan_id= (String)table.getModel().getValueAt(table.rowAtPoint(evnt.getPoint()), 0);
 
                 }
             }
@@ -127,14 +131,14 @@ public class FinesDue {
 
                     Connection connection = DriverManager.getConnection(url, username, password);
                     Statement stmt1=connection.createStatement();
-                    ResultSet rs=stmt1.executeQuery("Select * from LIBRARY.book_loans where Loan_id="+loan_id+" and Date_in is null;");
+                    ResultSet rs=stmt1.executeQuery("Select * from LIBRARY.BOOK_LOANS where Loan_id='"+loan_id+"' and Date_in is null;");
 
                     if(!rs.next())
                     {
                         connection =DriverManager.getConnection(url, username, password);
                         Statement stmt2=connection.createStatement();
-                        stmt2.executeUpdate("Update LIBRARY.FINES set Paid=1 where Loan_id="+loan_id+";");
-                        JOptionPane.showMessageDialog(null, "Fines for Loan Id "+loan_id+" has been paid ");
+                        stmt2.executeUpdate("Update LIBRARY.FINES set Paid=1 where Loan_id='"+loan_id+"';");
+                        JOptionPane.showMessageDialog(null, "Fines for Loan Id '"+loan_id+"' has been paid ");
                         mainFrame.setVisible(false);
                     }
                     else
@@ -181,17 +185,30 @@ public class FinesDue {
             Statement stmt=conn.createStatement();
             ResultSet rs= null;
 
-            rs= stmt.executeQuery("Select f.Loan_id, b.Isbn, f.Fine_amt from LIBRARY.FINES as f left outer join LIBRARY.BOOK_LOANS as b on b.Loan_id=f.Loan_id where b.Card_id="+card+" and Paid=0;");
-
-            //table.setModel(DbUtils.resultSetToTableModel(rs));
-            table.setEnabled(false);
-
-            table.getColumnModel().getColumn(0).setPreferredWidth(150);
-            table.getColumnModel().getColumn(1).setPreferredWidth(150);
-            table.getColumnModel().getColumn(2).setPreferredWidth(150);
-            //table.getColumnModel().getColumn(3).setPreferredWidth(100);
+            rs= stmt.executeQuery("Select f.Loan_id, b.Isbn10, f.Fine_amt from LIBRARY.FINES as f left outer join LIBRARY.BOOK_LOANS as b on b.Loan_id=f.Loan_id where b.Card_id='"+card+"' and Paid=0;");
 
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            table.setEnabled(true);
+
+            SwingUtilities.isEventDispatchThread();
+//            //TableColumn c = new TableColumn(0);
+//            //table.getColumnModel().addColumn(c);
+//           table.getColumnModel().getColumn(0).setPreferredWidth(150);
+//            table.getColumnModel().getColumn(1).setPreferredWidth(150);
+//            table.getColumnModel().getColumn(2).setPreferredWidth(150);
+//            //table.getColumnModel().getColumn(3).setPreferredWidth(100);
+            table.setModel(MakeTable.resultSetToTableModel(rs));
+            //TableColumn c = new TableColumn(0);
+            /*int size =0;
+            if (rs != null)
+            {
+                rs.last();    // moves cursor to the last row
+                size = rs.getRow(); // get row id
+            }*/
+            //Object [] data = {"ID000001", "123456789", 3.75};
+            //model.addRow(data);
+
+
         }
         catch(SQLException e)
         {

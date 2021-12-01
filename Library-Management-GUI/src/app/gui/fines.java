@@ -31,7 +31,7 @@ public class fines {
     public fines(){
         //title for the mainframe
         JFrame mainFrame=new JFrame("Library Management System: Fines");
-        mainFrame.setSize(1000,1000);
+        mainFrame.setSize(500,500);
         mainFrame.getContentPane().setBackground(Color.RED);
         mainFrame.setLocation(20, 50);
 
@@ -47,7 +47,7 @@ public class fines {
         controlPanel.setLayout(gbl_controlPanel);
 
 
-        //update Fines table
+        //update Fines table in the mysql driver
 
 
         try {
@@ -58,13 +58,16 @@ public class fines {
             ResultSet rs1=statement.executeQuery("Select * from LIBRARY.BOOK_LOANS where Due_date<'"+date+"';");
             while(rs1.next())
             {
-                int loan_id=Integer.parseInt(rs1.getString(1));
-                String dueDate=rs1.getString(5);
+                //int loan_id=Integer.parseInt(rs1.getString(1));
+                String loan_id = rs1.getString(1);
+                String dueDate=rs1.getString(4);
+                String cardID = rs1.getString(2);
 
                 DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                 java.util.Date due=format.parse(dueDate);
                 java.util.Date today=format.parse(date);
 
+                //setting the fines
                 double x =  (today.getTime() - due.getTime());
                 //System.out.println(x);
                 x=x / (1000 * 60 * 60 * 24);
@@ -72,22 +75,22 @@ public class fines {
                 //System.out.println(fine);
 
                 Statement stmt2=conn.createStatement();
-                ResultSet rs2=stmt2.executeQuery("Select * from LIBRARY.FINES where Loan_id="+loan_id+" and Paid=0;");
+                ResultSet rs2=stmt2.executeQuery("Select * from LIBRARY.FINES where Loan_id='"+loan_id+"' and Paid=0;");
 
                 if(rs2.next())
                 {
                     Statement stmt3 = conn.createStatement();
-                    stmt3.executeUpdate("Update LIBRARY.FINES set Fine_amt="+fine+" where Loan_id="+loan_id+";");
+                    stmt3.executeUpdate("Update LIBRARY.FINES set Fine_amt='"+fine+"' where Loan_id='"+loan_id+"';");
                 }
                 else
                 {
                     Statement stmt5=conn.createStatement();
-                    ResultSet rs5=stmt5.executeQuery("Select * from LIBRARY.FINES where Loan_id="+loan_id+" and Paid=1;");
+                    ResultSet rs5=stmt5.executeQuery("Select * from LIBRARY.FINES where Loan_id='"+loan_id+"' and Paid=1;");
 
                     if(!rs5.next())
                     {
                         Statement stmt4 = conn.createStatement();
-                        stmt4.executeUpdate("INSERT INTO LIBRARY.FINES (Loan_id,Fine_amt, Paid) VALUES ('"+loan_id+"', '"+fine+"',0);");
+                        stmt4.executeUpdate("INSERT INTO LIBRARY.FINES (Card_id, Loan_id,Fine_amt, Paid) VALUES ('"+cardID+"'', "+loan_id+"', '"+fine+"',0);");
                     }
                 }
             }
@@ -103,7 +106,7 @@ public class fines {
 
         //Header for the file
         JLabel header=new JLabel("FINES:",JLabel.CENTER);
-        header.setFont(new Font("Serif",Font.ITALIC,30));
+        header.setFont(new Font("Serif",Font.BOLD,30));
         GridBagConstraints gbc_header=new GridBagConstraints();
         gbc_header.insets=new Insets(0,0,5,0);
         gbc_header.gridx=0;
@@ -120,7 +123,7 @@ public class fines {
 
 
         //Borrower Card No.
-        JLabel lblcard=new JLabel("Please enter your card number  :",JLabel.LEFT);
+        JLabel lblcard=new JLabel("Enter card number  :",JLabel.LEFT);
         lblcard.setFont(new Font("Serif",Font.BOLD,14));
         GridBagConstraints gbc_lblcard=new GridBagConstraints();
         gbc_lblcard.insets=new Insets(0,0,5,0);
@@ -202,8 +205,8 @@ public class fines {
                 try {
                     Connection connection = DriverManager.getConnection(url, username, password);
                     Statement stmt1 = connection.createStatement();
-                    int card_id=Integer.parseInt(cardText.getText());
-                    ResultSet rs1=stmt1.executeQuery("Select b.Card_id, SUM(f.Fine_amt) from LIBRARY.FINES as f left outer join LIBRARY.BOOK_LOANS as b on b.Loan_id=f.Loan_id where f.Paid=0 group by b.Card_id having b.Card_id="+card_id+";");
+                    String card_id=cardText.getText();
+                    ResultSet rs1=stmt1.executeQuery("Select b.Card_id, SUM(f.Fine_amt) from LIBRARY.FINES as f left outer join LIBRARY.BOOK_LOANS as b on b.Loan_id=f.Loan_id where f.Paid=0 group by b.Card_id having b.Card_id='"+card_id+"';");
                     if(rs1.next())
                     {
                         BigDecimal fine=rs1.getBigDecimal(2);

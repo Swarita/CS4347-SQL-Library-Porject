@@ -53,7 +53,7 @@ public class check_out {
                 } else {
                     try {
                         String isbn = ISBN_Text.getText();
-                        int cardNo = Integer.parseInt(Card_no_Text.getText());
+                        String cardNo = Card_no_Text.getText();
                         String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
                         Calendar calendar = Calendar.getInstance();
                         calendar.add(Calendar.DATE, 14);
@@ -68,7 +68,7 @@ public class check_out {
                         //Driver d = new com.mysql.jdbc.Driver();
 
                         String url = "jdbc:mysql://database-lib.cliese5bfxyl.us-east-2.rds.amazonaws.com:3306/mysql";
-                        String test = "jdbc:mysql://localhost:3306/test";
+                        //String test = "jdbc:mysql://localhost:3306/test";
                         String user = "admin";
                         String pass = "lion1234";
 
@@ -101,7 +101,7 @@ public class check_out {
                                         ISBN_Text.setText("");
                                     } else {
                                         Statement s6 = connection.createStatement();
-                                        ResultSet r6 = s6.executeQuery("SELECT * from LIBRARY.BOOK_LOANS book, FINES fine WHERE Card_id = '" + cardNo + "' and book.Loan_id = fine.Loan_id and Paid = 0");
+                                        ResultSet r6 = s6.executeQuery("SELECT * from LIBRARY.BOOK_LOANS book, LIBRARY.FINES fine, LIBRARY.BORROWERS b WHERE book.Card_id = '" + cardNo + "' and book.Loan_id = fine.Loan_id and Paid = 0");
                                         if (r6.next()) {
                                             JOptionPane.showMessageDialog(null, "This borrower has an unpaid fine");
                                             Card_no_Text.setText("");
@@ -109,13 +109,14 @@ public class check_out {
                                         } else {
                                             Statement s7 = connection.createStatement();
                                             ResultSet r7 = s7.executeQuery("SELECT MAX(Loan_id) from LIBRARY.BOOK_LOANS");
-                                            int id = 0;
+                                            String id = "";
                                             if (r7.next()) {
-                                                id = r7.getInt(1) + 1;
+                                                id = r7.getString(1) ;
                                             }
 
+
                                             Statement s8 = connection.createStatement();
-                                            s8.executeUpdate("INSERT INTO LIBRARY.BOOK_LOANS (Loan_id, ISBN10, Card_id, Date_out, Due_Date) VALUES ("+id+", '"+isbn+"', "+cardNo+", '"+date+"', '"+dueDate+"');");
+                                            s8.executeUpdate("INSERT INTO LIBRARY.BOOK_LOANS (Loan_id, ISBN10, Card_id, Date_out, Due_Date) VALUES ('"+id+"', '"+isbn+"', '"+cardNo+"', '"+date+"', '"+dueDate+"');");
                                             JOptionPane.showMessageDialog(null, "Checkout successful");
                                             Card_no_Text.setText("");
                                             ISBN_Text.setText("");
