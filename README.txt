@@ -13,3 +13,11 @@
     	3. Go to Libraries and click the '+' button to add a new library. 
     	4. Select Java and select the jar file from the location you downloaded it in
     	5. Press ok and select the name of the folder called Library-Management-GUI to add to its build path and thats it!
+3. Functionality:
+   - Book Search and Availabiltiy : Allows for one to search for a book with ISBN, title and/or Author. 
+   - Book Loans
+      -Checking out Books : Allows for checking out books.
+      -Checking in BOoks : Allows for checking in books.
+   - Borrower Management : Allows for adding a new borrower.
+   - Fines : Displays the fines.
+      
